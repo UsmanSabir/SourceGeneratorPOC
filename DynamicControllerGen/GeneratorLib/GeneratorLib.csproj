@@ -5,12 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Controller.tpl" />
     <None Remove="ControllerText.txt" />
     <None Remove="SampleCode.txt" />
   </ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="ControllerText.txt" />
+		<EmbeddedResource Include="Controller.tpl" />
 		<EmbeddedResource Include="Hello5.txt" />
 		<EmbeddedResource Include="SampleCode.txt" />
 	</ItemGroup>
@@ -29,6 +31,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
+    <PackageReference Include="Scriban" Version="5.4.6" />
   </ItemGroup>
 	
 </Project>

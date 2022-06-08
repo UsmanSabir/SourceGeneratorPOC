@@ -5,13 +5,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using System.Linq;
+using Scriban;
 
 namespace GeneratorLib
 {
     [Generator]
     public class ControllerGenerator : ISourceGenerator
     {
-        private const string FilePath = "ControllerText.txt";
+        private const string FilePath = "Controller.tpl";
         private static readonly DiagnosticDescriptor InvalidXmlWarning = new DiagnosticDescriptor(id: "MYXMLGEN001",
                                                                                               title: "Couldn't find file",
                                                                                               messageFormat: "Couldn't find file '{0}'",
@@ -21,20 +23,32 @@ namespace GeneratorLib
 
         public void Execute(GeneratorExecutionContext context)
         {
-            // find anything that matches our files
-            //var file = Path.Combine(Path.GetDirectoryName(typeof(ControllerGenerator).Assembly.Location), FilePath);
-            
-            var file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), FilePath);
-            context.ReportDiagnostic(Diagnostic.Create(InvalidXmlWarning, Location.None, file));
+            System.Diagnostics.Debugger.Launch();
+
+
+            var compilation = context.Compilation;
+            var controllerRoutes = compilation.SyntaxTrees
+                .Select(t => compilation.GetSemanticModel(t))
+                .Select(Scanner.ScanForControllers)
+                .SelectMany(c => c)
+                .ToArray();
 
             var content = ResourceHelper.GetResourceFileContentAsString(FilePath);
-
+            var tpl = Template.Parse(content);
+            
+            foreach (var controllerRoute in controllerRoutes)
+            {
+                var controllerName = $"{controllerRoute.Name}Controller";
+                ControllerModel model = new ControllerModel(compilation.GlobalNamespace.ToDisplayString(), controllerName, controllerRoute.Actions);
+                var res = tpl.Render(model);
+                var sourceText = SourceText.From(res, Encoding.UTF8);
+                context.AddSource($"{controllerName}.g.cs", sourceText);
+            }
             //var content = File.ReadAllText(file); //$".\\{FilePath}"
             {
                 // do some transforms based on the file context
-                string output = content.ToString();
-
-                var sourceText = SourceText.From(output, Encoding.UTF8);
+                
+                
 
                 //context.AddSource($"{Path.GetFileNameWithoutExtension(FilePath)}.g.cs", sourceText);
             }
