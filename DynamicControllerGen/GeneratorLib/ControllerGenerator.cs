@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using Scriban;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace GeneratorLib
 {
@@ -25,11 +26,7 @@ namespace GeneratorLib
         {
             System.Diagnostics.Debugger.Launch();
 
-            //if (!context.Compilation.ReferencedAssemblyNames.Any(ai => ai.Name.Equals("Scriban", StringComparison.OrdinalIgnoreCase)))
-            //{
-            //    //context.ReportDiagnostic(/*error or warning*/);
-            //}
-
+            
             var compilation = context.Compilation;
             var controllerRoutes = compilation.SyntaxTrees
                 .Select(t => compilation.GetSemanticModel(t))
@@ -38,14 +35,37 @@ namespace GeneratorLib
                 .ToArray();
 
             var content = ResourceHelper.GetResourceFileContentAsString(FilePath);
-            var tpl = Template.Parse(content);
-            
+            var template = Template.Parse(content);
+            if (template.HasErrors)
+            {
+                var errors = string.Join(" | ", template.Messages.Select(x => x.Message));
+                throw new InvalidOperationException($"Template parse error: {errors}");
+            }
+
+            var nameSpace = context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.RootNamespace", out var rootNamespace);
+            if (!nameSpace)
+            {
+                rootNamespace = compilation.Assembly?.ContainingNamespace?.ToDisplayString();
+                if (string.IsNullOrWhiteSpace(rootNamespace))
+                {
+                    rootNamespace = compilation.AssemblyName;
+                }
+            }
+            if (string.IsNullOrWhiteSpace(rootNamespace))
+                rootNamespace = "Generated";
+
             foreach (var controllerRoute in controllerRoutes)
             {
+                
                 var controllerName = $"{controllerRoute.Name}Controller";
-                ControllerModel model = new ControllerModel(compilation.GlobalNamespace.ToDisplayString(), controllerName, controllerRoute.Actions);
-                var res = tpl.Render(model);
-                var sourceText = SourceText.From(res, Encoding.UTF8);
+                ControllerModel model = new ControllerModel(rootNamespace, controllerName, controllerRoute.Actions);
+                var result = template.Render(model, memberRenamer: member => member.Name);
+                result = SyntaxFactory.ParseCompilationUnit(result)
+                      .NormalizeWhitespace()
+                      .GetText()
+                      .ToString();
+
+                var sourceText = SourceText.From(result, Encoding.UTF8);
                 context.AddSource($"{controllerName}.g.cs", sourceText);
             }
             //var content = File.ReadAllText(file); //$".\\{FilePath}"

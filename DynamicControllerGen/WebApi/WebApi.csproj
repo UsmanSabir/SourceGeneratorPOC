@@ -19,4 +19,8 @@
     
   </ItemGroup>
 
+	<ItemGroup>
+		<CompilerVisibleProperty Include="RootNamespace" />
+	</ItemGroup>
+	
 </Project>
