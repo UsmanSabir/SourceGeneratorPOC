@@ -25,6 +25,10 @@ namespace GeneratorLib
         {
             System.Diagnostics.Debugger.Launch();
 
+            //if (!context.Compilation.ReferencedAssemblyNames.Any(ai => ai.Name.Equals("Scriban", StringComparison.OrdinalIgnoreCase)))
+            //{
+            //    //context.ReportDiagnostic(/*error or warning*/);
+            //}
 
             var compilation = context.Compilation;
             var controllerRoutes = compilation.SyntaxTrees
