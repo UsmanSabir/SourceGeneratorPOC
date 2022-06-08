@@ -1,0 +1,13 @@
+﻿using System;
+namespace HelloWorldG
+{
+    public static class HelloWorld5
+    {
+        public static void SayHello() 
+        {
+Console.WriteLine("Hello generated code 525255555555!");
+            Console.WriteLine("Hello from generated code!");
+            Console.WriteLine("The following syntax trees existed in the compilation that created this program:");
+}
+    }
+}

@@ -1,0 +1,13 @@
+﻿using System;
+namespace HelloWorldG
+{
+    public static class HelloWorld9
+    {
+        public static void SayHello() 
+        {
+Console.WriteLine("Hello generated code 9191!");
+            Console.WriteLine("Hello from generated code!");
+            
+}
+    }
+}
