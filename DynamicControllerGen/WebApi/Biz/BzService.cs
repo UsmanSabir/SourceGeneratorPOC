@@ -7,6 +7,11 @@ namespace WebApi.Biz
         int TryMe(string s);
 
         void Raw(Abc abc);
+
+        void Done();
+
+        int Multi(int id, string s, Abc abc);
+
     }
     public class BzService : IBizService
     {
@@ -16,6 +21,17 @@ namespace WebApi.Biz
             Debug.WriteLine("Created");
         }
 
+        public void Done()
+        {
+            Debug.WriteLine("Done");
+        }
+
+        public int Multi(int id, string s, Abc abc)
+        {
+            Debug.WriteLine($"Multi: {id}:{s}");
+            return 5;
+        }
+
         public void Raw(Abc abc)
         {
             Debug.WriteLine("Raw Done");
@@ -23,6 +39,7 @@ namespace WebApi.Biz
 
         public int TryMe(string s)
         {
+            Debug.WriteLine($"TryMe: {s}");
             return 0;
         }
     }

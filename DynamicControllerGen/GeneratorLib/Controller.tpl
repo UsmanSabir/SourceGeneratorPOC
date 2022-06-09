@@ -20,7 +20,27 @@ namespace {{ NameSpace }}
 
         {{- for action in Actions }}
         [HttpPost("{{ action.Name }}")]
-        public IActionResult {{ action.Name }}()
+        public IActionResult {{ action.Name }}(
+            {{-
+                indx=0
+                params=""
+
+                for mapping in action.Mapping
+
+                if indx>0 
+                 params = params + ", "
+                end
+                indx=indx + 1
+
+                params = params + mapping.Parameter.FullTypeName
+                params = params + " " + mapping.Key
+
+                end
+                indx=0
+            -}}
+
+            {{- params -}}
+        )
         {      
             System.Diagnostics.Debugger.Launch();
             return Ok(Enumerable.Range(1, 5).Select(index => new WeatherForecast
