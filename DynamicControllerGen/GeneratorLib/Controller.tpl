@@ -50,6 +50,12 @@ namespace {{ NameSpace }}
                 end
                 $indx=$indx + 1
 
+                if !mapping.Parameter.IsPrimitive
+                    $params = $params + " [Microsoft.AspNetCore.Mvc.FromBody] "
+                else
+                    $params = $params + " [Microsoft.AspNetCore.Mvc.FromRoute] "
+                end
+
                 $nullChr =""
                 if mapping.Parameter.HasDefaultValue
                     $nullChr ="?"
