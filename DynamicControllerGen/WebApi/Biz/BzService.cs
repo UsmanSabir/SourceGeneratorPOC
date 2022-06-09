@@ -6,6 +6,8 @@ namespace WebApi.Biz
     {
         int TryMe(string s);
 
+        int TryDefault(string d= "test");
+
         void Raw(Abc abc);
 
         void Done();
@@ -35,6 +37,12 @@ namespace WebApi.Biz
         public void Raw(Abc abc)
         {
             Debug.WriteLine("Raw Done");
+        }
+
+        public int TryDefault(string d = "test")
+        {
+            Debug.WriteLine($"TryDefault: {d}");
+            return 5;
         }
 
         public int TryMe(string s)

@@ -148,10 +148,10 @@ namespace GeneratorLib
 
 
                     var parameters = methodSymbol.Parameters.Where(t => true)
-                        .Select(delegate (IParameterSymbol t) { return new ParameterMapping(t.Name, new Parameter(t.Type.ToString(), t.HasExplicitDefaultValue, t.HasExplicitDefaultValue ? t.ExplicitDefaultValue : null)); })
+                        .Select(delegate (IParameterSymbol t) { return new ParameterMapping(t.Name, new Parameter(t.Type.ToString(), IsPrimitive(t.Type), t.HasExplicitDefaultValue, t.HasExplicitDefaultValue ? WrapDefaultValue(t.Type, t.ExplicitDefaultValue) : null)); })
                         .ToArray();
                     var bodyParameter = methodSymbol.Parameters.Where(t => (!IsPrimitive(t.Type)) || t.GetAttributes().Any(e => e.AttributeClass?.Name == "FromBodyAttribute"))
-                        .Select(t => new ParameterMapping(t.Name, new Parameter(t.Type.ToString(), t.HasExplicitDefaultValue, t.HasExplicitDefaultValue ? t.ExplicitDefaultValue : null)))
+                        .Select(t => new ParameterMapping(t.Name, new Parameter(t.Type.ToString(), IsPrimitive(t.Type), t.HasExplicitDefaultValue, t.HasExplicitDefaultValue ? WrapDefaultValue(t.Type, t.ExplicitDefaultValue) : null)))
                         .FirstOrDefault();
 
                     yield return new ActionRoute(name, method, route, returnType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), useCustomFormatter, parameters, bodyParameter);
@@ -243,6 +243,26 @@ namespace GeneratorLib
                 case TypeKind.Enum:
                     return true;
             }
+
+            return false;
+        }
+
+        private static object? WrapDefaultValue(ITypeSymbol typeSymbol, object? val)
+        {
+            switch (typeSymbol.SpecialType)
+            {                
+                case SpecialType.System_Char:
+                    return val == null ? val : $"'{val}'";
+                case SpecialType.System_String:
+                    return val == null ? val : $"\"{val}\"";
+            }
+
+            //for future work
+            //switch (typeSymbol.TypeKind)
+            //{
+            //    case TypeKind.Enum:
+            //        return true;
+            //}
 
             return false;
         }

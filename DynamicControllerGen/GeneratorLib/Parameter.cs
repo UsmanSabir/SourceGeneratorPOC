@@ -2,7 +2,7 @@
 
 namespace GeneratorLib
 {
-    public record Parameter(string FullTypeName, bool HasDefaultValue, object? DefaultValue);
+    public record Parameter(string FullTypeName, bool IsPrimitive, bool HasDefaultValue, object? DefaultValue);
 
     public record ActionRoute(string Name, HttpMethod Method, string Route, string? ReturnTypeName, bool hasCustomFormatter, ParameterMapping[] Mapping, ParameterMapping? Body);
 
