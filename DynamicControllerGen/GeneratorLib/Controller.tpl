@@ -35,10 +35,19 @@ namespace {{ NameSpace }}
 
                     $route = $route + "/{" + mapping.Key + $nullChr + "}" 
                 end
+
+                $returnString = "IActionResult"
+                $actionName = action.Name
+                if(action.IsAsync)
+                    $returnString = "async Task<IActionResult>"
+                    if $actionName | string.ends_with "Async"
+                        $actionName = $actionName | string.remove "Async"
+                    end
+                end
             }}
 
-        [HttpPost("{{ action.Name }}{{ $route }}")]
-        public IActionResult {{ action.Name }}(
+        [HttpPost("{{ $actionName }}{{ $route }}")]
+        public {{ $returnString }} {{ $actionName }}(
             {{-
                 $indx=0
                 $params=""
@@ -73,7 +82,19 @@ namespace {{ NameSpace }}
             {{- $params -}}
         )
         {      
-            System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Break();
+            // var result = Ok({{ if action.IsAsync }} await {{end}} obj.{{action.Name}}(
+            {{-
+            $sep = ""
+            for mapping in action.Mapping
+            -}}
+             {{$sep}}{{mapping.Key}}
+
+             {{-
+                $sep = ", ";
+                end
+             -}}
+            ));
             return Ok(Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

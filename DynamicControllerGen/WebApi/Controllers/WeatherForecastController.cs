@@ -34,5 +34,11 @@ namespace WebApi.Controllers
             })
             .ToArray();
         }
+
+        [HttpGet("GetWeatherForecast2")]
+        public IActionResult Get2()
+        {
+            return Ok(null);
+        }
     }
 }

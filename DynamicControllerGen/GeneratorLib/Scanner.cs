@@ -102,11 +102,21 @@ namespace GeneratorLib
 
                     var name = methodSymbol.Name;
                     var returnType = methodSymbol.ReturnType;
+                    var isAsync = false;
 
                     // Unwrap Task<T>
-                    if (returnType is INamedTypeSymbol taskType && taskType.OriginalDefinition.ToString() == "System.Threading.Tasks.Task<TResult>")
+                    if (returnType is INamedTypeSymbol taskType)
                     {
-                        returnType = taskType.TypeArguments.First();
+                        // Unwrap Task<T>
+                        if (taskType.OriginalDefinition.ToString() == "System.Threading.Tasks.Task<TResult>")
+                        {
+                            isAsync = true;
+                            returnType = taskType.TypeArguments.First();
+                        }
+                        else if (taskType.OriginalDefinition.ToString() == "System.Threading.Tasks.Task")
+                        {
+                            isAsync = true;                            
+                        }
                     }
 
                     // Take unwrapped T and check whether we need to 
@@ -154,7 +164,7 @@ namespace GeneratorLib
                         .Select(t => new ParameterMapping(t.Name, new Parameter(t.Type.ToString(), IsPrimitive(t.Type), t.HasExplicitDefaultValue, t.HasExplicitDefaultValue ? WrapDefaultValue(t.Type, t.ExplicitDefaultValue) : null)))
                         .FirstOrDefault();
 
-                    yield return new ActionRoute(name, method, route, returnType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), useCustomFormatter, parameters, bodyParameter);
+                    yield return new ActionRoute(name, method, route, returnType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), useCustomFormatter, isAsync, parameters, bodyParameter);
                 }
             }
         }

@@ -10,9 +10,12 @@ namespace WebApi.Biz
 
         void Raw(Abc abc);
 
-        void Done();
+        void DoneLocal();
+        Task DoneAsync();
 
-        int Multi(int id, string s, Abc abc);
+        int MultiLocal(int id, string s, Abc abc);
+        Task<int> MultiAsync(int id, string s, Abc abc);
+
 
     }
     public class BzService : IBizService
@@ -23,14 +26,24 @@ namespace WebApi.Biz
             Debug.WriteLine("Created");
         }
 
-        public void Done()
+        public void DoneLocal()
         {
             Debug.WriteLine("Done");
         }
 
-        public int Multi(int id, string s, Abc abc)
+        public async Task DoneAsync()
+        {
+            
+        }
+
+        public int MultiLocal(int id, string s, Abc abc)
         {
             Debug.WriteLine($"Multi: {id}:{s}");
+            return 5;
+        }
+
+        public async Task<int> MultiAsync(int id, string s, Abc abc)
+        {
             return 5;
         }
 
