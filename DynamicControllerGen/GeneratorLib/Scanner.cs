@@ -44,7 +44,7 @@ namespace GeneratorLib
             {
                 if (semantic.GetDeclaredSymbol(node) is INamedTypeSymbol classSymbol && InheritsFrom(classSymbol, controllerBase))
                 {
-                    File.WriteAllText($"C:\\Temp\\Imp{classSymbol.Name}.txt", classSymbol?.Name ?? "NULL");
+                    //File.WriteAllText($"C:\\Temp\\Imp{classSymbol.Name}.txt", classSymbol?.Name ?? "NULL");
                     yield return ToRoute(classSymbol);
                 }
             }
@@ -72,21 +72,21 @@ namespace GeneratorLib
 
         private static IEnumerable<ActionRoute> ScanForActionMethods(INamedTypeSymbol classSymbol)
         {
-            //Debugger.Launch();
-            var allInterfaceMethods = classSymbol.AllInterfaces
-       .SelectMany(x => x.GetMembers())
-       //.Concat(targetType.GetMembers())
-       .OfType<IMethodSymbol>()
-       .ToList();
+            //     //Debugger.Launch();
+            //     var allInterfaceMethods = classSymbol.AllInterfaces
+            //.SelectMany(x => x.GetMembers())
+            ////.Concat(targetType.GetMembers())
+            //.OfType<IMethodSymbol>()
+            //.ToList();
 
-            var methodSignatures = allInterfaceMethods.Select(x => GetFullQualifiedName(x.ReturnType) + " " +
-            x.Name + "(" +
-            String.Join(", ", x.Parameters.Select(p => GetFullQualifiedName(p.Type) + " " + p.Name))
-            + ")"
-            ).ToList();
-            StringBuilder sb=new StringBuilder();
-            foreach (var methodSignature in methodSignatures) sb.AppendLine(methodSignature);
-            File.WriteAllText($"C:\\Temp\\Sig-{classSymbol.Name}.txt", sb.ToString());
+            //var methodSignatures = allInterfaceMethods.Select(x => GetFullQualifiedName(x.ReturnType) + " " +
+            //x.Name + "(" +
+            //String.Join(", ", x.Parameters.Select(p => GetFullQualifiedName(p.Type) + " " + p.Name))
+            //+ ")"
+            //).ToList();
+            //StringBuilder sb=new StringBuilder();
+            //foreach (var methodSignature in methodSignatures) sb.AppendLine(methodSignature);
+            //File.WriteAllText($"C:\\Temp\\Sig-{classSymbol.Name}.txt", sb.ToString());
 
             foreach (var member in classSymbol.GetMembers())
             {
@@ -115,7 +115,7 @@ namespace GeneratorLib
                         }
                         else if (taskType.OriginalDefinition.ToString() == "System.Threading.Tasks.Task")
                         {
-                            isAsync = true;                            
+                            isAsync = true;
                         }
                     }
 
@@ -190,11 +190,11 @@ namespace GeneratorLib
             var bi = classDeclaration.Interfaces.FirstOrDefault(i => i.Equals(targetBaseType, SymbolEqualityComparer.Default));
 
             //File.WriteAllText($"C:\\Temp\\DerivedInterface{currentDeclared.Name}.txt", sb.ToString());
-            File.WriteAllText($"C:\\Temp\\matched-interface-{currentDeclared.Name}.txt", bi?.Name ?? "NULL");
+            //File.WriteAllText($"C:\\Temp\\matched-interface-{currentDeclared.Name}.txt", bi?.Name ?? "NULL");
 
             //var res = classDeclaration.AllInterfaces.Any(i => i.Equals(targetBaseType, SymbolEqualityComparer.Default));
             //return res;
-            if(bi != null)
+            if (bi != null)
                 return true;
 
             foreach (var item in classDeclaration.Interfaces)
@@ -260,7 +260,7 @@ namespace GeneratorLib
         private static object? WrapDefaultValue(ITypeSymbol typeSymbol, object? val)
         {
             switch (typeSymbol.SpecialType)
-            {                
+            {
                 case SpecialType.System_Char:
                     return val == null ? val : $"'{val}'";
                 case SpecialType.System_String:
