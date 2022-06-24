@@ -4,7 +4,8 @@ using System.Text;
 
 namespace GeneratorLib
 {
-    internal record ControllerModel(string NameSpace, string ControllerName, ActionRoute[] Actions);
+    internal record ControllerModel(string NameSpace, string ControllerName, 
+        string ClassName, string ClassFullName, ActionRoute[] Actions);
 
     //internal class ControllerModel
     //{

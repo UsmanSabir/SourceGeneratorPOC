@@ -56,6 +56,9 @@ namespace GeneratorLib
             var name = classSymbol.Name.EndsWith(suffix)
                 ? classSymbol.Name.Substring(0, classSymbol.Name.Length - suffix.Length)
                 : classSymbol.Name;
+            
+            var className = classSymbol.Name;
+            var classFullName = classSymbol.ToDisplayString();
 
             var actionMethods = ScanForActionMethods(classSymbol)
                 .ToArray();
@@ -67,7 +70,7 @@ namespace GeneratorLib
             var areaAttribute = FindAttribute(classSymbol, a => a.ToString() == "Microsoft.AspNetCore.Mvc.AreaAttribute");
             var area = areaAttribute?.ConstructorArguments.FirstOrDefault().Value?.ToString() ?? null;
 
-            return new ControllerRoute(name, area, route, actionMethods);
+            return new ControllerRoute(name, className, classFullName, area, route, actionMethods);
         }
 
         private static IEnumerable<ActionRoute> ScanForActionMethods(INamedTypeSymbol classSymbol)
@@ -103,7 +106,7 @@ namespace GeneratorLib
                     var name = methodSymbol.Name;
                     var returnType = methodSymbol.ReturnType;
                     var isAsync = false;
-
+                    var hasNoReturnType = false;
                     // Unwrap Task<T>
                     if (returnType is INamedTypeSymbol taskType)
                     {
@@ -116,7 +119,13 @@ namespace GeneratorLib
                         else if (taskType.OriginalDefinition.ToString() == "System.Threading.Tasks.Task")
                         {
                             isAsync = true;
+                            hasNoReturnType = true;
                         }
+                        else if (taskType.OriginalDefinition.ToString() == "void")
+                        {
+                            hasNoReturnType = true;
+                        }
+
                     }
 
                     // Take unwrapped T and check whether we need to 
@@ -164,7 +173,7 @@ namespace GeneratorLib
                         .Select(t => new ParameterMapping(t.Name, new Parameter(t.Type.ToString(), IsPrimitive(t.Type), t.HasExplicitDefaultValue, t.HasExplicitDefaultValue ? WrapDefaultValue(t.Type, t.ExplicitDefaultValue) : null)))
                         .FirstOrDefault();
 
-                    yield return new ActionRoute(name, method, route, returnType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), useCustomFormatter, isAsync, parameters, bodyParameter);
+                    yield return new ActionRoute(name, method, route, returnType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), useCustomFormatter, hasNoReturnType, isAsync, parameters, bodyParameter);
                 }
             }
         }

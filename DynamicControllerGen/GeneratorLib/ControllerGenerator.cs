@@ -24,7 +24,7 @@ namespace GeneratorLib
 
         public void Execute(GeneratorExecutionContext context)
         {
-            //System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
 
             
             var compilation = context.Compilation;
@@ -58,7 +58,10 @@ namespace GeneratorLib
             {
                 
                 var controllerName = $"{controllerRoute.Name}Controller";
-                ControllerModel model = new ControllerModel(rootNamespace, controllerName, controllerRoute.Actions);
+                var className = $"{controllerRoute.ClassName}";
+                var classFullName = controllerRoute.ClassFullName;
+
+                ControllerModel model = new ControllerModel(rootNamespace, controllerName, className, classFullName, controllerRoute.Actions);
                 var result = template.Render(model, memberRenamer: member => member.Name);
                 result = SyntaxFactory.ParseCompilationUnit(result)
                       .NormalizeWhitespace()

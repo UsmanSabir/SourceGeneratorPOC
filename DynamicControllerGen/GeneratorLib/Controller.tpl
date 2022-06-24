@@ -11,11 +11,16 @@ namespace {{ NameSpace }}
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-        private readonly ILogger<{{ ControllerName }}> _logger;
+        {{ $obj = "_" + ( string.downcase ClassName ) }}
 
-        public {{ ControllerName }}(ILogger<{{ ControllerName }}> logger)
+        private readonly ILogger<{{ ControllerName }}> _logger;                
+        private readonly {{ ClassFullName }} {{ $obj }};
+
+
+        public {{ ControllerName }}(ILogger<{{ ControllerName }}> logger, {{ ClassFullName }} obj)
         {
             _logger = logger;
+            {{ $obj }} = obj;
         }
 
         {{- for action in Actions }}
@@ -83,7 +88,11 @@ namespace {{ NameSpace }}
         )
         {      
             System.Diagnostics.Debugger.Break();
-            // var result = Ok({{ if action.IsAsync }} await {{end}} obj.{{action.Name}}(
+
+            {{ if action.HasNoReturnType }}
+            return Ok();
+            {{else}}
+            var result = Ok({{ if action.IsAsync }} await {{end}} {{$obj}}.{{action.Name}}(
             {{-
             $sep = ""
             for mapping in action.Mapping
@@ -95,6 +104,8 @@ namespace {{ NameSpace }}
                 end
              -}}
             ));
+            return result;
+            {{- end }}
             return Ok(Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
